@@ -18,10 +18,9 @@
 #include <unistd.h>
 #endif
 
-using std::vector;
-
 typedef struct __shared {
     std::atomic<int> global_counter;
+    std::vector<int> local_counters;
     int sloppiness;
     int work_time;
     int work_iterations;
@@ -48,6 +47,7 @@ void* work(void* arg) {
             // end timing
             auto finish = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> elapsed = finish - start;
+            std::cout << "Time spent on doing 1 billion increments: " << elapsed.count() << " seconds" << std::endl;
         } else {
             #ifdef _WIN32
         Sleep(random_work_time * 1000);
@@ -63,6 +63,19 @@ void* work(void* arg) {
     }
     return NULL;
 }
+
+    void createThreads(std::vector<pthread_t>& threads, shared& sh) {
+    for (int i = 0; i < threads.size(); ++i) {
+        pthread_create(&threads[i], NULL, work, &sh);
+    }
+}
+
+void joinThreads(std::vector<pthread_t>& threads) {
+    for (auto& t : threads) {
+        pthread_join(t, NULL);
+    }
+}
+
 
 int main(int argc, char* argv[]) {
     shared sh;
@@ -96,18 +109,15 @@ int main(int argc, char* argv[]) {
         std::cout << "Do Logging =  " << (sh.do_logging ? "true" : "false") << std::endl;
     }
 
-    vector<pthread_t> threads(n_threads);
-    for (int i = 0; i < n_threads; ++i) {
-        pthread_create(&threads[i], NULL, work, &sh);
-    }
-
-    for (auto& t : threads) {
-        pthread_join(t, NULL);
-    }
+    std::vector<pthread_t> threads(n_threads);
+    createThreads(threads, sh);
 
     if (sh.do_logging) {
-        std::cout << "Final global counter = " << sh.global_counter << std::endl;
+        log(sh, n_threads);
     }
 
+    joinThreads(threads);
+
     return 0;
+
 }
