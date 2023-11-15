@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
     }
 
     if (sh.do_logging) {
-        std::cout << "Final global counter: " << sh.global_counter << std::endl;
+        std::cout << "Final global counter = " << sh.global_counter << std::endl;
     }
 
     return 0;
