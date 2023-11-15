@@ -24,8 +24,8 @@ typedef struct __shared {
     int sloppiness = 10;
     int work_time = 10;
     int work_iterations= 100;
-    bool cpu_bound = true;
-    bool do_logging = true;
+    bool cpu_bound = false;
+    bool do_logging = false;
 } shared;
 
 void* work(void* arg) {
