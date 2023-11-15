@@ -13,7 +13,7 @@
 #include <atomic>
 
 #ifdef _WIN32
-#include <Windows.h>
+#include <windows.h>
 #else
 #include <unistd.h>
 #endif
@@ -43,7 +43,12 @@ void* work(void* arg) {
                 // Perform some work that takes approximately work_time milliseconds
             }
         } else {
-            usleep(random_work_time * 1000);
+            #ifdef _WIN32
+        Sleep(random_work_time * 1000);
+            #else
+        usleep(random_work_time * 1000 * 1000); // usleep works with microseconds
+    #endif
+
         }
         if (++local_counter % sh->sloppiness == 0) {
             sh->global_counter += sh->sloppiness;
@@ -77,12 +82,12 @@ int main(int argc, char* argv[]) {
     }
 
     if (sh.do_logging) {
-        std::cout << "N_Threads: " << n_threads << std::endl;
-        std::cout << "Sloppiness: " << sh.sloppiness << std::endl;
-        std::cout << "Work Time: " << sh.work_time << std::endl;
-        std::cout << "Work Iterations: " << sh.work_iterations << std::endl;
-        std::cout << "CPU Bound: " << (sh.cpu_bound ? "true" : "false") << std::endl;
-        std::cout << "Do Logging: " << (sh.do_logging ? "true" : "false") << std::endl;
+        std::cout << "N_Threads = " << n_threads << std::endl;
+        std::cout << "Sloppiness = " << sh.sloppiness << std::endl;
+        std::cout << "Work Time = " << sh.work_time << std::endl;
+        std::cout << "Work Iterations =  " << sh.work_iterations << std::endl;
+        std::cout << "CPU Bound =  " << (sh.cpu_bound ? "true" : "false") << std::endl;
+        std::cout << "Do Logging =  " << (sh.do_logging ? "true" : "false") << std::endl;
     }
 
     vector<pthread_t> threads(n_threads);
