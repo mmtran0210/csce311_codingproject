@@ -39,9 +39,15 @@ void* work(void* arg) {
         int random_work_time = distribution(generator);
         if (sh->cpu_bound) {
             long increments = sh->work_time * 1e6; // Total number of increments
+            // start timing
+            auto start = std::chrono::high_resolution_clock::now();
+
             for (long j = 0; j < increments; ++j) {
                 // Perform some work that takes approximately work_time milliseconds
             }
+            // end timing
+            auto finish = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsed = finish - start;
         } else {
             #ifdef _WIN32
         Sleep(random_work_time * 1000);
