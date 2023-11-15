@@ -19,13 +19,13 @@
 #endif
 
 typedef struct __shared {
-    std::atomic<int> global_counter;
+    std::atomic<int> global_counter = 0;
     std::vector<int> local_counters;
-    int sloppiness;
-    int work_time;
-    int work_iterations;
-    bool cpu_bound;
-    bool do_logging;
+    int sloppiness = 10;
+    int work_time = 10;
+    int work_iterations= 100;
+    bool cpu_bound = true;
+    bool do_logging = true;
 } shared;
 
 void* work(void* arg) {
@@ -76,15 +76,30 @@ void joinThreads(std::vector<pthread_t>& threads) {
     }
 }
 
+void Do_Logging(shared& sh, int n_threads) {
+    std::cout << "N_Threads = " << n_threads << std::endl;
+    std::cout << "Sloppiness = " << sh.sloppiness << std::endl;
+    std::cout << "Work Time = " << sh.work_time << std::endl;
+    std::cout << "Work Iterations =  " << sh.work_iterations << std::endl;
+    std::cout << "CPU Bound =  " << (sh.cpu_bound ? "true" : "false") << std::endl;
+    std::cout << "Do Logging =  " << (sh.do_logging ? "true" : "false") << std::endl;
+
+    for (int i = 0; i < 10; ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(sh.work_time * sh.work_iterations / 10));
+        std::cout << "Global counter = " << sh.global_counter << std::endl;
+        std::cout << "Local counters = [";
+        for (int j = 0; j < sh.local_counters.size(); ++j) {
+            std::cout << sh.local_counters[j];
+            if (j != sh.local_counters.size() - 1) std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+    }
+
+    std::cout << "Final global counter = " << sh.global_counter << std::endl;
+} 
 
 int main(int argc, char* argv[]) {
     shared sh;
-    sh.global_counter = 0;
-    sh.sloppiness = 10;
-    sh.work_time = 10;
-    sh.work_iterations = 100;
-    sh.cpu_bound = false;
-    sh.do_logging = false;
 
     int n_threads = 2; // Default number of threads
     if (argc > 1) n_threads = std::stoi(argv[1]); // If provided, update the number of threads
@@ -98,15 +113,6 @@ int main(int argc, char* argv[]) {
                 if (argc > 6) sh.do_logging = std::string(argv[6]) == "true"; // If provided, update the logging
             }
         }
-    }
-
-    if (sh.do_logging) {
-        std::cout << "N_Threads = " << n_threads << std::endl;
-        std::cout << "Sloppiness = " << sh.sloppiness << std::endl;
-        std::cout << "Work Time = " << sh.work_time << std::endl;
-        std::cout << "Work Iterations =  " << sh.work_iterations << std::endl;
-        std::cout << "CPU Bound =  " << (sh.cpu_bound ? "true" : "false") << std::endl;
-        std::cout << "Do Logging =  " << (sh.do_logging ? "true" : "false") << std::endl;
     }
 
     std::vector<pthread_t> threads(n_threads);
