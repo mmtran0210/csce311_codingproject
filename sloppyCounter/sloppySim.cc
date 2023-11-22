@@ -12,6 +12,9 @@
 #include <random>
 #include <unistd.h> // for usleep
 #include <thread>
+#include <mutex>
+
+std::mutex mtx; // global mutex
 
 typedef struct __shared {
     std::atomic<int> global_counter = 0;
@@ -49,13 +52,17 @@ void* work(void* arg) {
 
         // Increment the local and global counters regardless of whether cpu_bound is true or false
         if (++sh->local_counters[thread_index] == sh->sloppiness) {
+            mtx.lock();
             sh->global_counter += sh->sloppiness;
+            mtx.unlock();
             sh->local_counters[thread_index] = 0;
         }
     }
 
     if (sh->local_counters[thread_index] > 0) {
+        mtx.lock();
         sh->global_counter += sh->local_counters[thread_index];
+        mtx.unlock();
         sh->local_counters[thread_index] = 0;
     }
 
@@ -76,13 +83,6 @@ void joinThreads(std::vector<pthread_t>& threads) {
 }
 
 void doLogging(shared& sh, int n_threads) {
-    std::cout << "N_Threads = " << n_threads << std::endl;
-    std::cout << "Sloppiness = " << sh.sloppiness << std::endl;
-    std::cout << "Work Time = " << sh.work_time << std::endl;
-    std::cout << "Work Iterations =  " << sh.work_iterations << std::endl;
-    std::cout << "CPU Bound =  " << (sh.cpu_bound ? "true" : "false") << std::endl;
-    std::cout << "Do Logging =  " << (sh.do_logging ? "true" : "false") << std::endl;
-    
     for (int i = 0; i < 10; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(sh.work_time * sh.work_iterations / 10));
         std::cout << "Global Ct = " << sh.global_counter << " Locals [";
@@ -93,26 +93,35 @@ void doLogging(shared& sh, int n_threads) {
         std::cout << "]" << std::endl;
     }
 
-    std::cout << "Final Global Count:" << sh.global_counter << std::endl;
+    
 }
 
-
+// Minh My Tran - CSCE 311 002 - Sloppy Counter Simulator
 int main(int argc, char* argv[]) {
     shared sh;
 
     int n_threads = 2; // Default number of threads
-    if (argc > 1) n_threads = std::stoi(argv[1]); // If provided, update the number of threads
-    if (argc > 2) sh.sloppiness = std::stoi(argv[2]); // If provided, update the sloppiness
+    if (argc > 1) n_threads = std::stoi(argv[1]); //number of threads
+    if (argc > 2) sh.sloppiness = std::stoi(argv[2]); // sloppiness
     if (argc > 3) {
-        sh.work_time = std::stoi(argv[3]); // If provided, update the work time
+        sh.work_time = std::stoi(argv[3]); // work time
         if (argc > 4) {
-            sh.work_iterations = std::stoi(argv[4]); // If provided, update the work iterations
+            sh.work_iterations = std::stoi(argv[4]); // work iterations
             if (argc > 5) {
-                sh.cpu_bound = std::string(argv[5]) == "true"; // If provided, update the CPU bound
-                if (argc > 6) sh.do_logging = std::string(argv[6]) == "true"; // If provided, update the logging
+                sh.cpu_bound = std::string(argv[5]) == "true"; // CPU bound
+                if (argc > 6) sh.do_logging = std::string(argv[6]) == "true"; // logging
             }
         }
     }
+
+    // Print settings
+    std::cout << "with simulation parameters:\n";
+    std::cout << "\t# of Threads = " << n_threads << "\n";
+    std::cout << "\tSloppiness = " << sh.sloppiness << "\n";
+    std::cout << "\tWork Time = " << sh.work_time << "\n";
+    std::cout << "\tWork Iterations = " << sh.work_iterations << "\n";
+    std::cout << "\tCPU Bound = " << (sh.cpu_bound ? 1 : 0) << "\n";
+    std::cout << "\tDo Logging = " << (sh.do_logging ? 1 : 0) << "\n";
 
     sh.local_counters.resize(n_threads, 0);
 
@@ -130,6 +139,9 @@ int main(int argc, char* argv[]) {
     }
 
     joinThreads(threads);
+
+    // Print the final global count
+    std::cout << "Final Global Count:" << sh.global_counter << "\n";
 
     return 0;
 }
