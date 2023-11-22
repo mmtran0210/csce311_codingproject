@@ -6,17 +6,12 @@
  */
 
 #include <iostream>
-#include <pthread.h>
 #include <vector>
-#include <chrono>
-#include <random>
+#include <pthread.h>
 #include <atomic>
-
-#ifdef _WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
+#include <random>
+#include <unistd.h> // for usleep
+#include <thread>
 
 typedef struct __shared {
     std::atomic<int> global_counter = 0;
@@ -28,45 +23,49 @@ typedef struct __shared {
     bool do_logging = false;
 } shared;
 
+typedef struct __thread_data {
+    shared* sh;
+    int thread_index;
+} thread_data;
+
 void* work(void* arg) {
-    shared* sh = (shared*) arg;
+    thread_data* data = (thread_data*) arg;
+    shared* sh = data->sh;
+    int thread_index = data->thread_index;
+
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution(sh->work_time*0.5, sh->work_time*1.5);
 
-    int local_counter = 0;
     for (int i = 0; i < sh->work_iterations; ++i) {
         int random_work_time = distribution(generator);
         if (sh->cpu_bound) {
             long increments = sh->work_time * 1e6; // Total number of increments
-            // start timing
-            auto start = std::chrono::high_resolution_clock::now();
-
             for (long j = 0; j < increments; ++j) {
-                // Perform some work that takes approximately work_time milliseconds
+                // Perform some work here
             }
-            // end timing
-            auto finish = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed = finish - start;
-            std::cout << "Time spent on doing 1 billion increments: " << elapsed.count() << " seconds" << std::endl;
         } else {
-            #ifdef _WIN32
-        Sleep(random_work_time * 1000);
-            #else
-        usleep(random_work_time * 1000 * 1000); // usleep works with microseconds
-    #endif
-
+            usleep(random_work_time * 1000); // usleep works with microseconds
         }
-        if (++local_counter % sh->sloppiness == 0) {
+
+        // Increment the local and global counters regardless of whether cpu_bound is true or false
+        if (++sh->local_counters[thread_index] == sh->sloppiness) {
             sh->global_counter += sh->sloppiness;
-            local_counter = 0;
+            sh->local_counters[thread_index] = 0;
         }
     }
+
+    if (sh->local_counters[thread_index] > 0) {
+        sh->global_counter += sh->local_counters[thread_index];
+        sh->local_counters[thread_index] = 0;
+    }
+
     return NULL;
 }
 
-    void createThreads(std::vector<pthread_t>& threads, shared& sh) {
+
+void createThreads(std::vector<pthread_t>& threads, std::vector<thread_data>& thread_data_vec) {
     for (int i = 0; i < threads.size(); ++i) {
-        pthread_create(&threads[i], NULL, work, &sh);
+        pthread_create(&threads[i], NULL, work, (void*)(&thread_data_vec[i]));
     }
 }
 
@@ -76,27 +75,27 @@ void joinThreads(std::vector<pthread_t>& threads) {
     }
 }
 
-void Do_Logging(shared& sh, int n_threads) {
+void doLogging(shared& sh, int n_threads) {
     std::cout << "N_Threads = " << n_threads << std::endl;
     std::cout << "Sloppiness = " << sh.sloppiness << std::endl;
     std::cout << "Work Time = " << sh.work_time << std::endl;
     std::cout << "Work Iterations =  " << sh.work_iterations << std::endl;
     std::cout << "CPU Bound =  " << (sh.cpu_bound ? "true" : "false") << std::endl;
     std::cout << "Do Logging =  " << (sh.do_logging ? "true" : "false") << std::endl;
-
+    
     for (int i = 0; i < 10; ++i) {
         std::this_thread::sleep_for(std::chrono::milliseconds(sh.work_time * sh.work_iterations / 10));
-        std::cout << "Global counter = " << sh.global_counter << std::endl;
-        std::cout << "Local counters = [";
+        std::cout << "Global Ct = " << sh.global_counter << " Locals [";
         for (int j = 0; j < sh.local_counters.size(); ++j) {
             std::cout << sh.local_counters[j];
-            if (j != sh.local_counters.size() - 1) std::cout << ", ";
+            if (j != sh.local_counters.size() - 1) std::cout << ",";
         }
         std::cout << "]" << std::endl;
     }
 
-    std::cout << "Final global counter = " << sh.global_counter << std::endl;
-} 
+    std::cout << "Final Global Count:" << sh.global_counter << std::endl;
+}
+
 
 int main(int argc, char* argv[]) {
     shared sh;
@@ -115,15 +114,22 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    sh.local_counters.resize(n_threads, 0);
+
     std::vector<pthread_t> threads(n_threads);
-    createThreads(threads, sh);
+    std::vector<thread_data> thread_data_vec(n_threads);
+    for (int i = 0; i < n_threads; ++i) {
+        thread_data_vec[i].sh = &sh;
+        thread_data_vec[i].thread_index = i;
+    }
+
+    createThreads(threads, thread_data_vec);
 
     if (sh.do_logging) {
-        log(sh, n_threads);
+        doLogging(sh, n_threads);
     }
 
     joinThreads(threads);
 
     return 0;
-
 }
