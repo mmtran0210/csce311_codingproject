@@ -8,7 +8,6 @@
 #include <iostream>
 #include <vector>
 #include <pthread.h>
-#include <atomic>
 #include <random>
 #include <unistd.h> // for usleep
 #include <thread>
@@ -17,7 +16,7 @@
 std::mutex mtx; // global mutex
 
 typedef struct __shared {
-    std::atomic<int> global_counter = 0;
+    int global_counter = 0;
     std::vector<int> local_counters;
     int sloppiness = 10;
     int work_time = 10;
