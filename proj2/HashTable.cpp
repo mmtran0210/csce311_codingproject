@@ -1,4 +1,5 @@
 #include "HashTable.h"
+#include <string.h>
 
 size_t HashTable::hashFunction(int key) {
     // modulo-based hash function
@@ -38,19 +39,25 @@ bool HashTable::insert(int key, const std::string& value) {
     }
 
     if (entry == nullptr) {
-        entry = new KeyValuePair(key, value);
+        // Create a copy of the value string to ensure it's stored correctly.
+        char* valueCopy = new char[value.length() + 1];
+        std::strcpy(valueCopy, value.c_str());
+
+        entry = new KeyValuePair(key, valueCopy); // Assuming KeyValuePair takes a char* for value.
         if (prev == nullptr) {
             table[index] = entry;
         } else {
             prev->next = entry;
         }
         pthread_mutex_unlock(&locks[index]);
+        delete[] valueCopy; // Clean up the temporary copy.
         return true;
     } else {
         pthread_mutex_unlock(&locks[index]);
         return false;
     }
 }
+
 
 bool HashTable::remove(int key) {
     size_t index = hashFunction(key);
@@ -87,7 +94,15 @@ std::string HashTable::lookup(int key) {
         entry = entry->next;
     }
 
-    std::string result = (entry != nullptr) ? entry->value : "No " + std::to_string(key);
+    std::string result;
+    if (entry != nullptr) {
+        // Assuming entry->value is a null-terminated C-style string.
+        result = std::string(entry->value);
+    } else {
+        result = "No " + std::to_string(key);
+    }
+
     pthread_mutex_unlock(&locks[index]);
     return result;
 }
+

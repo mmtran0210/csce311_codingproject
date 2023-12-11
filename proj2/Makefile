@@ -30,6 +30,6 @@ clean:
 
 # Run target
 run:
-	./$(TARGET) BasicTest*.txt BasicTest_OUTPUT_*.txt
+	./$(TARGET) basicTests*.txt basicTest_OUTPUT_*.txt
 
 .PHONY: all clean run

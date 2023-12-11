@@ -39,8 +39,6 @@ void* processOperations(void* arg) {
                 break;
             case MapOperation::LOOKUP:
                 result = map->lookup(op.key);
-                // Debug statement to print the lookup result
-                std::cout << "DEBUG: Lookup result for key " << op.key << ": '" << result << "'" << std::endl;
                 break;
             case MapOperation::STOP:
                 return nullptr;
@@ -51,6 +49,12 @@ void* processOperations(void* arg) {
     }
 
     return nullptr;
+}
+
+    // Helper function to trim leading whitespace
+    std::string trimLeadingWhitespace(const std::string& str) {
+    size_t start = str.find_first_not_of(" \t");
+    return (start == std::string::npos) ? "" : str.substr(start);
 }
 
 int main(int argc, char* argv[]) {
@@ -95,8 +99,11 @@ int main(int argc, char* argv[]) {
         std::string value;
         iss >> command >> key;
         if (command == 'I') {
-            iss.ignore(3); // Ignore the space and opening quote
+            iss.ignore(1); // Ignore the space and opening quote
+            char quote;
+            iss >> quote;
             std::getline(iss, value, '"');
+            value = trimLeadingWhitespace(value);
             operationQueue.enqueue(MapOperation(MapOperation::INSERT, key, value));
         } else if (command == 'D') {
             operationQueue.enqueue(MapOperation(MapOperation::DELETE, key));

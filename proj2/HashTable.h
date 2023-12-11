@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <pthread.h>
+#include <cstring>
 
 // Define the structure for the (key, value) pair
 struct KeyValuePair {
