@@ -10,6 +10,7 @@ OperationQueue::~OperationQueue() {
     pthread_cond_destroy(&cond);
 }
 
+
 void OperationQueue::enqueue(const MapOperation& op) {
     pthread_mutex_lock(&mutex);
     queue.push(op);
