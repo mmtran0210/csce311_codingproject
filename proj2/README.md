@@ -36,3 +36,25 @@ The implementation utilizes a hash table for storing (key, value) pairs and a th
 * The number of threads is determined by the first line of the input file
 >  (e.g., N 4 for 4 threads).
 
+## Testing
+
+### Performance
+Performance testing was carried out to measure the scalability and efficiency of the map:
+
+- **Single-threaded Performance**: With one thread, the map's output was nearly identical to the expected output, confirming its functional correctness.
+
+- **Multi-threaded Performance**: When using multiple threads, I observed some discrepancies in the output. This indicates potential issues with thread synchronization or the ordering of operations.
+
+### Error Analysis
+
+To address the errors in multi-threaded performance, we:
+- Reviewed the locking mechanisms to prevent race conditions.
+- Ensured that the operation queue maintains the correct order of operations.
+- Checked for proper handling of the `STOP` operation by all threads.
+
+### Performance Categorization
+
+The performance can be categorized based on the number of threads used:
+- **Single-threaded**: Excellent correctness with a baseline for performance comparison.
+- **Multi-threaded (2-4 threads)**: Good performance with occasional synchronization issues.
+- **Multi-threaded (5+ threads)**: Performance improvements plateau, indicating the need for further optimization.

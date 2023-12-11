@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
     std::istringstream(line.substr(2)) >> numThreads;
 
     // Initialize the hash table
-    HashTable map(1 << 20);
+    HashTable map(1 << 22);
 
     // Initialize the mutex for outputResults
     pthread_mutex_init(&outputMutex, nullptr);
