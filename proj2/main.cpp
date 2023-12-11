@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // Enqueue a stop operation for each thread
+    // Enqueue a STOP after all opreations have been processed
     for (int i = 0; i < numThreads; ++i) {
         operationQueue.enqueue(MapOperation(MapOperation::STOP, 0));
     }
@@ -128,7 +128,7 @@ int main(int argc, char* argv[]) {
  // Write the results to the output file
 std::ofstream outputFile(outputFilePath);
 if (!outputFile.is_open()) {
-    std::cerr << "Error opening output file.\n";
+    std::cerr << "Error\n";
     return 1;
 }
 
@@ -137,8 +137,9 @@ outputFile << "Using " << numThreads << " threads" << std::endl;
 
 // Write the results to the output file, each on a new line
 for (const auto& result : outputResults) {
-    outputFile << result << std::endl; // Ensure each result is on a new line
+    outputFile << result << std::endl;
 }
+
     // Close the input and output files
     inputFile.close();
     outputFile.close();
