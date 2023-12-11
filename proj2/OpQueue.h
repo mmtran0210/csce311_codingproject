@@ -1,3 +1,5 @@
+// My Tran - CSCE 311 - Project 2 - 002
+
 #ifndef OPERATION_QUEUE_H
 #define OPERATION_QUEUE_H
 
@@ -19,7 +21,7 @@ struct MapOperation {
 };
 
 
-// Define a thread-safe queue
+// Define a thread queue
 class OperationQueue {
 private:
     std::queue<MapOperation> queue;

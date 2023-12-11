@@ -1,3 +1,5 @@
+// My Tran - CSCE 311 - Project 2 - 002
+
 #include "HashTable.h"
 #include <string.h>
 

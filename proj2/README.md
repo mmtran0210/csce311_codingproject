@@ -3,6 +3,7 @@
 ## Compile Instruction
 
 Step 1: 
+Assume that you have the input file, and you are already at the directory 
 
 ```
 make
@@ -45,6 +46,13 @@ Performance testing was carried out to measure the scalability and efficiency of
 
 - **Multi-threaded Performance**: When using multiple threads, I observed some discrepancies in the output. This indicates potential issues with thread synchronization or the ordering of operations.
 
+### Performance Categorization
+
+The performance can be categorized based on the number of threads used:
+- **Single-threaded**: Excellent correctness with a baseline for performance comparison.
+- **Multi-threaded (2-4 threads)**: Good performance with occasional synchronization issues.
+- **Multi-threaded (5+ threads)**: Performance improvements plateau, indicating the need for further optimization.
+
 ### Error Analysis
 
 To address the errors in multi-threaded performance, we:
@@ -52,9 +60,25 @@ To address the errors in multi-threaded performance, we:
 - Ensured that the operation queue maintains the correct order of operations.
 - Checked for proper handling of the `STOP` operation by all threads.
 
-### Performance Categorization
+## Some Example Run and a little analysis:
+for file 100k insert - 60k delete - 50k lookup, 1 thread, times take to output everything: 
+real    0m35.809s
+user    0m0.598s
+sys     0m8.381s
 
-The performance can be categorized based on the number of threads used:
-- **Single-threaded**: Excellent correctness with a baseline for performance comparison.
-- **Multi-threaded (2-4 threads)**: Good performance with occasional synchronization issues.
-- **Multi-threaded (5+ threads)**: Performance improvements plateau, indicating the need for further optimization.
+same setup, 4 thread
+real    0m44.701s
+user    0m1.971s
+sys     0m14.579s
+For this setup, starting to see error (command not working properly) at line 50.011 and all the way down
+![Alt text](image.png)
+
+for 10 - 6 - 1 - 5:
+real    0m0.144s
+user    0m0.031s
+sys     0m0.103s
+
+same setup, 1 thread:
+real    0m0.146s
+user    0m0.023s
+sys     0m0.111s

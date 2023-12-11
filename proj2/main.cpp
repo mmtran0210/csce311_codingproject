@@ -1,6 +1,6 @@
 // https://github.com/mmtran0210/csce311_codingproject.git
 
-// My Tran - CSCE 311 - Project 2 The bonus
+// My Tran - CSCE 311 - Project 2 - 002
 
 #include "HashTable.h"
 #include "OpQueue.h"

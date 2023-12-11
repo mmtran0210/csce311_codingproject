@@ -1,3 +1,5 @@
+// My Tran - CSCE 311 - Project 2 - 002
+
 #ifndef HASH_TABLE_H
 #define HASH_TABLE_H
 
