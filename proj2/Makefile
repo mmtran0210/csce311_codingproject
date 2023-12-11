@@ -26,7 +26,7 @@ $(TARGET): $(OBJECTS)
 
 # Clean target
 clean:
-	rm -f $(TARGET) $(OBJECTS)
+	rm -f $(TARGET) $(OBJECTS) $(INPUT) $(OUTPUT)
 
 # Run target
 run:
