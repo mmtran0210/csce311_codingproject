@@ -33,11 +33,12 @@ bool HashTable::insert(int key, const std::string& value) {
 
     KeyValuePair* prev = nullptr;
     KeyValuePair* entry = table[index];
+    // search for the key 
     while (entry != nullptr && entry->key != key) {
         prev = entry;
         entry = entry->next;
     }
-
+    // if not, insert
     if (entry == nullptr) {
         // Create a copy of the value string to ensure it's stored correctly.
         char* valueCopy = new char[value.length() + 1];
@@ -65,14 +66,16 @@ bool HashTable::remove(int key) {
 
     KeyValuePair* prev = nullptr;
     KeyValuePair* entry = table[index];
+
+    // search for the key
     while (entry != nullptr && entry->key != key) {
         prev = entry;
         entry = entry->next;
     }
-
     if (entry == nullptr) {
         pthread_mutex_unlock(&locks[index]);
         return false;
+        
     } else {
         if (prev == nullptr) {
             table[index] = entry->next;
