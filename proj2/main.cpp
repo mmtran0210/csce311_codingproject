@@ -1,4 +1,3 @@
-// https://github.com/mmtran0210/csce311_codingproject.git
 
 // My Tran - CSCE 311 - Project 2 - 002
 
