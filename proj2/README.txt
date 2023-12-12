@@ -16,6 +16,12 @@ Step 2:
 ./mapper <InputFile> <OutputFile>
 ```
 
+Step 3:
+```
+make clean 
+```
+And repeat if needed
+
 ## Approach
 
 The implementation utilizes a hash table for storing (key, value) pairs and a thread-safe operation queue to manage map operations. The hash table is protected by an array of mutex locks to allow concurrent access by multiple threads.

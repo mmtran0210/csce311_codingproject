@@ -57,11 +57,7 @@ void* processOperations(void* arg) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <input file> <output file>\n";
-        return 1;
-    }
-
+    
     std::string inputFilePath = argv[1];
     std::string outputFilePath = argv[2];
 
