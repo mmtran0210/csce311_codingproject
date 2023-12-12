@@ -1,5 +1,7 @@
 # Concurrent Map Data Structure
 
+Github Link: In case something went wrong, https://github.com/mmtran0210/sillythings__dontnotice/tree/main/proj2
+
 ## Compile Instruction
 
 Step 1: 
