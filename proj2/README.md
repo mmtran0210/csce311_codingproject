@@ -64,28 +64,45 @@ To address the errors in multi-threaded performance, we:
 
 ### 1 THREAD RUN
 for file 100k insert - 60k delete - 50k lookup, 1 thread, times take to output everything: 
+```
 real    0m35.809s
 user    0m0.598s
 sys     0m8.381s
+```
 
 for 10 - 6 - 1 - 1 thread:
+```
 real    0m0.146s
 user    0m0.023s
 sys     0m0.111s
+```
 
 ### MULTIPLE THREAD RUN
 for file 100k insert - 60k delete - 50k lookup, 4 thread
+```
 real    0m44.701s
 user    0m1.971s
 sys     0m14.579s
+```
+
 For this setup, starting to see error (command not working properly) at line 50.011 and all the way down
 ![image](https://github.com/mmtran0210/csce311_codingproject/assets/105460300/5d943798-7376-4947-9acc-36fdcea960ed)
 
 
 for 10 - 6 - 1 - 5:
+```
 real    0m0.144s
 user    0m0.031s
 sys     0m0.103s
+```
+
 ![image](https://github.com/mmtran0210/csce311_codingproject/assets/105460300/d64cb933-f76b-41f7-ab24-5e6fc267bff3)
+
+As you can see, for multiple thread with a larger setting, time costs more then 1 thread but the oposite with a smaller setting as this is quite common in multithreaded programs:
+
+For smaller tasks, this overhead can outweigh the benefits of parallel execution, making the multithreaded version slower than the single-threaded one. However, for larger tasks, the benefits of parallel execution can outweigh the overhead, making the multithreaded version faster.
+
+
+
 
 
