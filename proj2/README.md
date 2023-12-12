@@ -104,6 +104,14 @@ As you can see, for multiple thread with a larger setting, time costs more then 
 
 For smaller tasks, this overhead can outweigh the benefits of parallel execution, making the multithreaded version slower than the single-threaded one. However, for larger tasks, the benefits of parallel execution can outweigh the overhead, making the multithreaded version faster.
 
+### 2M Run
+
+forgot to time this but it took like half an hour! I dont know the exact time but here's the 2 outputs, it is also impossible to get a side by side comparision because of the size so I just screenshoot some:
+
+
+![20m_1](https://github.com/mmtran0210/sillythings__dontnotice/assets/105460300/9f4b6dc2-0218-43f9-8e89-4a8d3a733507)
+
+![20m_2](https://github.com/mmtran0210/sillythings__dontnotice/assets/105460300/f6d5a714-4240-4eb8-9c71-41b3496751bd)
 
 
 
